@@ -19,8 +19,13 @@ public class CorsConfig implements WebMvcConfigurer {
       .map(String::trim)
       .filter(s -> !s.isBlank())
       .toArray(String[]::new);
+
+    if (origins.length == 0) {
+      origins = new String[] {"*"};
+    }
+
     registry.addMapping("/**")
-      .allowedOrigins(origins)
+      .allowedOriginPatterns(origins)
       .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
       .allowedHeaders("*")
       .allowCredentials(true)
