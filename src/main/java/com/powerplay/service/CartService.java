@@ -24,14 +24,12 @@ public class CartService {
   }
 
   public CartResponse getCart(User user) {
-    Cart cart = cartRepository.findByUserId(user.getId())
-      .orElseGet(() -> createEmptyCart(user));
+    Cart cart = resolveCart(user);
     return mapCart(cart);
   }
 
   public CartResponse saveCart(User user, List<CartItemRequest> items) {
-    Cart cart = cartRepository.findByUserId(user.getId())
-      .orElseGet(() -> createEmptyCart(user));
+    Cart cart = resolveCart(user);
 
     List<CartItem> updatedItems = (items == null ? List.<CartItemRequest>of() : items).stream()
       .map(this::mapRequestToItem)
@@ -43,11 +41,25 @@ public class CartService {
   }
 
   public void clearCart(User user) {
-    Cart cart = cartRepository.findByUserId(user.getId())
-      .orElseGet(() -> createEmptyCart(user));
+    Cart cart = resolveCart(user);
     cart.setItems(List.of());
     cart.setUpdatedAt(Instant.now());
     cartRepository.save(cart);
+  }
+
+  private Cart resolveCart(User user) {
+    List<Cart> carts = cartRepository.findAllByUserId(user.getId());
+
+    if (carts.isEmpty()) {
+      return createEmptyCart(user);
+    }
+
+    Cart primary = carts.get(0);
+    if (carts.size() > 1) {
+      carts.stream().skip(1).forEach(cartRepository::delete);
+    }
+
+    return primary;
   }
 
   private Cart createEmptyCart(User user) {
