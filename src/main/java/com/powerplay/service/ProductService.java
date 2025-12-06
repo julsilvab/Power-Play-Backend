@@ -42,10 +42,11 @@ public class ProductService {
     return mapProduct(productRepository.save(product));
   }
 
-  public void delete(String id) {
+  public ProductResponse delete(String id) {
     Product product = productRepository.findById(id)
       .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
     productRepository.delete(product);
+    return mapProduct(product);
   }
 
   private void applyRequest(Product product, ProductRequest request) {

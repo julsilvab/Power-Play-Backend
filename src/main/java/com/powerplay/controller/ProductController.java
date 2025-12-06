@@ -55,10 +55,9 @@ public class ProductController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> delete(@PathVariable String id,
-                                     @RequestHeader("Authorization") String authHeader) {
+  public ResponseEntity<ProductResponse> delete(@PathVariable String id,
+                                                @RequestHeader("Authorization") String authHeader) {
     authService.requireAdmin(authHeader);
-    productService.delete(id);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok(productService.delete(id));
   }
 }
