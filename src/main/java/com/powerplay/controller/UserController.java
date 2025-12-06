@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import com.powerplay.dto.UserResponse;
 import com.powerplay.dto.UserRoleRequest;
@@ -44,5 +45,13 @@ public class UserController {
                                                  @Valid @RequestBody UserRoleRequest request) {
     authService.requireAdmin(authHeader);
     return ResponseEntity.ok(userService.updateRole(id, request.getRole()));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(@PathVariable String id,
+                                     @RequestHeader("Authorization") String authHeader) {
+    authService.requireAdmin(authHeader);
+    userService.deleteUser(id);
+    return ResponseEntity.noContent().build();
   }
 }

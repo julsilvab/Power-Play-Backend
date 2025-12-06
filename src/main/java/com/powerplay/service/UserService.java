@@ -23,6 +23,17 @@ public class UserService {
     this.userRepository = userRepository;
   }
 
+  public void deleteUser(String userId) {
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+    if ("admin".equalsIgnoreCase(user.getRole())) {
+      throw new ApiException(HttpStatus.FORBIDDEN, "No puedes eliminar un administrador");
+    }
+
+    userRepository.delete(user);
+  }
+
   public List<UserResponse> getUsers() {
     return userRepository.findAll().stream()
       .map(this::mapUser)
