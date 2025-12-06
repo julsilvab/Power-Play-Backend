@@ -3,6 +3,7 @@ package com.powerplay.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.powerplay.dto.OrderItemRequest;
@@ -11,6 +12,7 @@ import com.powerplay.model.Order;
 import com.powerplay.model.Order.OrderForm;
 import com.powerplay.model.Order.OrderItem;
 import com.powerplay.model.User;
+import com.powerplay.exception.ApiException;
 import com.powerplay.repository.OrderRepository;
 
 @Service
@@ -26,6 +28,10 @@ public class OrderService {
     return orderRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
   }
 
+  public List<Order> getAllOrders() {
+    return orderRepository.findAllByOrderByCreatedAtDesc();
+  }
+
   public Order createOrder(User user, OrderRequest request) {
     Order order = new Order();
     order.setUserId(user.getId());
@@ -35,6 +41,13 @@ public class OrderService {
     order.setSubtotal(request.getSubtotal());
     order.setShipping(request.getShipping());
     order.setTotal(request.getTotal());
+    return orderRepository.save(order);
+  }
+
+  public Order updateStatus(String orderId, String status) {
+    Order order = orderRepository.findById(orderId)
+      .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
+    order.setStatus(status);
     return orderRepository.save(order);
   }
 
